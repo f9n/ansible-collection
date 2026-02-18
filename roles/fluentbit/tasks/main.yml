@@ -2,36 +2,36 @@
 - name: Include Linux platform variables
   ansible.builtin.include_vars:
     file: linux.yml
-  when: ansible_os_family != 'Windows'
+  when: ansible_facts['os_family'] != 'Windows'
 
 - name: Include Windows platform variables
   ansible.builtin.include_vars:
     file: windows.yml
-  when: ansible_os_family == 'Windows'
+  when: ansible_facts['os_family'] == 'Windows'
 
 - name: Install Fluent Bit (Linux)
   ansible.builtin.include_tasks: install_linux.yml
-  when: ansible_os_family != 'Windows'
+  when: ansible_facts['os_family'] != 'Windows'
 
 - name: Install Fluent Bit (Windows)
   ansible.builtin.include_tasks: install_windows.yml
-  when: ansible_os_family == 'Windows'
+  when: ansible_facts['os_family'] == 'Windows'
 
 - name: Configure Fluent Bit (Linux)
   ansible.builtin.include_tasks: configure_linux.yml
-  when: ansible_os_family != 'Windows'
+  when: ansible_facts['os_family'] != 'Windows'
 
 - name: Configure Fluent Bit (Windows)
   ansible.builtin.include_tasks: configure_windows.yml
-  when: ansible_os_family == 'Windows'
+  when: ansible_facts['os_family'] == 'Windows'
 
 - name: Flush handlers before service start
   ansible.builtin.meta: flush_handlers
 
 - name: Manage service (Linux)
   ansible.builtin.include_tasks: service_linux.yml
-  when: ansible_os_family != 'Windows'
+  when: ansible_facts['os_family'] != 'Windows'
 
 - name: Manage service (Windows)
   ansible.builtin.include_tasks: service_windows.yml
-  when: ansible_os_family == 'Windows'
+  when: ansible_facts['os_family'] == 'Windows'

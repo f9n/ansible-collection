@@ -5,6 +5,7 @@
   tasks:
     - name: Check Fluent Bit service is running
       ansible.builtin.service_facts:
+      become: true
 
     - name: Assert fluent-bit service is active
       ansible.builtin.assert:
@@ -21,3 +22,24 @@
       ansible.builtin.assert:
         that:
           - _config_stat.stat.exists
+
+    - name: Wait for Fluent Bit to emit records
+      ansible.builtin.pause:
+        seconds: 3
+
+    - name: Get Fluent Bit journal output
+      ansible.builtin.command:
+        cmd: journalctl -u fluent-bit --no-pager -n 100
+      register: _journal_output
+      changed_when: false
+      become: true
+
+    - name: Show Fluent Bit journal output
+      ansible.builtin.debug:
+        var: _journal_output.stdout_lines
+
+    - name: Assert expected message appears in output
+      ansible.builtin.assert:
+        that:
+          - '"oflu" in _journal_output.stdout'
+        fail_msg: "Expected message 'oflu' not found in Fluent Bit output"

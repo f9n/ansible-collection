@@ -6,6 +6,10 @@
     - role: f9n.general.fluentbit
       vars:
         fluentbit_pipelines:
-          - outputs: |
+          - inputs: |
+              - name: dummy
+                tag: test
+                dummy: '{"message": "oflu"}'
+            outputs: |
               - name: stdout
                 match: "*"

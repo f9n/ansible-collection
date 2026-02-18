@@ -1,7 +1,7 @@
 ---
 fluentbit_conf_dir: "/etc/fluent-bit"
 fluentbit_config_file: "/etc/fluent-bit/fluent-bit.yml"
-fluentbit_bin_dir: "/usr/bin"
+fluentbit_bin_dir: "/opt/fluent-bit/bin"
 fluentbit_db_directory: "/var/lib/fluent-bit"
 fluentbit_storage_directory: "/var/lib/fluent-bit"
 fluentbit_parsers_path: "/etc/fluent-bit/parsers.yml"

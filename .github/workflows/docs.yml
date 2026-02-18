@@ -55,10 +55,9 @@ jobs:
       - name: Initialize Sphinx project
         run: |
           uv run antsibull-docs sphinx-init \
-            --collections-path ../../../ \
             --squash-hierarchy \
             --dest docs/sphinx \
-            f9n.general
+            .
         working-directory: ansible_collections/f9n/general
 
       - name: Install Sphinx dependencies
