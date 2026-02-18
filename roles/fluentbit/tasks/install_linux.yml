@@ -18,19 +18,29 @@
     mode: "0755"
   become: true
 
-- name: Download repository GPG key
+- name: Download repository GPG key (armored)
   ansible.builtin.get_url:
     url: "{{ fluentbit_apt_key_url }}"
-    dest: "{{ fluentbit_apt_key_path }}"
+    dest: "/tmp/fluentbit-keyring.asc"
     mode: "0644"
     force: false
   become: true
 
+- name: Dearmor GPG key
+  ansible.builtin.command:
+    cmd: "gpg --dearmor -o {{ fluentbit_apt_key_path }} /tmp/fluentbit-keyring.asc"
+    creates: "{{ fluentbit_apt_key_path }}"
+  become: true
+
+- name: Set GPG key permissions
+  ansible.builtin.file:
+    path: "{{ fluentbit_apt_key_path }}"
+    mode: "0644"
+  become: true
+
 - name: Add Fluent Bit repository
   ansible.builtin.apt_repository:
-    repo: |
-      deb [signed-by={{ fluentbit_apt_key_path }}] {{ fluentbit_apt_repos_url }}
-      {{ ansible_facts['distribution_release'] | lower }} {{ fluentbit_apt_repos_component }}
+    repo: "deb [signed-by={{ fluentbit_apt_key_path }}] {{ fluentbit_apt_repos_url }} {{ ansible_facts['distribution_release'] | lower }} {{ fluentbit_apt_repos_component }}"
     filename: fluentbit
     state: present
   become: true
