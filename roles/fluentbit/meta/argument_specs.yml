@@ -1,0 +1,159 @@
+---
+argument_specs:
+  main:
+    short_description: Install and configure Fluent Bit.
+    description:
+      - Installs Fluent Bit on Linux (apt) or Windows (zip) and deploys the configuration.
+    author:
+      - f9n (https://github.com/f9n)
+    options:
+      fluentbit_version:
+        type: str
+        required: false
+        default: "4.2.2"
+        description: Fluent Bit version to install.
+
+      fluentbit_service_flush:
+        type: int
+        required: false
+        default: 1
+        description: Flush interval in seconds.
+
+      fluentbit_service_daemon:
+        type: bool
+        required: false
+        default: false
+        description: Run Fluent Bit as a daemon. Should be false when managed by systemd.
+
+      fluentbit_service_hot_reload:
+        type: bool
+        required: false
+        default: false
+        description: Enable hot reload support.
+
+      fluentbit_service_loglevel:
+        type: str
+        required: false
+        default: info
+        choices:
+          - error
+          - warn
+          - info
+          - debug
+          - trace
+        description: Log level for Fluent Bit.
+
+      fluentbit_service_log_file:
+        type: str
+        required: false
+        default: ""
+        description: Path to write Fluent Bit logs. Empty means log to stdout.
+
+      fluentbit_service_http:
+        type: dict
+        required: false
+        description: HTTP server settings rendered under the service section.
+        options:
+          server:
+            type: str
+            required: false
+            default: "on"
+            description: Enable or disable the built-in HTTP server.
+          listen:
+            type: str
+            required: false
+            default: "0.0.0.0"
+            description: Address the HTTP server listens on.
+          port:
+            type: int
+            required: false
+            default: 2020
+            description: Port the HTTP server listens on.
+
+      fluentbit_service_storage:
+        type: dict
+        required: false
+        description: Storage settings rendered under the service section.
+
+      fluentbit_systemd_limit_no_file:
+        type: str
+        required: false
+        default: ""
+        description: >
+          Value for LimitNOFILE in the systemd override file (Linux only).
+          Empty means no override.
+
+      fluentbit_systemd_memory_max:
+        type: str
+        required: false
+        default: "300M"
+        description: >
+          Value for MemoryMax in the systemd override file (Linux only).
+          Also enables MemoryAccounting. Empty means no override.
+
+      fluentbit_systemd_io_weight:
+        type: str
+        required: false
+        default: "1"
+        description: >
+          Value for IOWeight in the systemd override file (Linux only).
+          Also enables IOAccounting. Empty means no override.
+
+      fluentbit_includes:
+        type: list
+        elements: str
+        required: false
+        default: []
+        description: Additional config files to include (relative paths appended to the includes section).
+
+      fluentbit_pipelines:
+        type: list
+        elements: dict
+        required: false
+        description: >
+          List of pipeline definitions. Each pipeline is rendered as a top-level
+          C(pipeline:) block in the Fluent Bit YAML config. Use YAML block scalars
+          (C(|)) for inputs, filters, and outputs.
+        options:
+          inputs:
+            type: str
+            required: false
+            default: ""
+            description: Raw YAML string for the inputs section of this pipeline.
+          filters:
+            type: str
+            required: false
+            default: ""
+            description: Raw YAML string for the filters section of this pipeline.
+          outputs:
+            type: str
+            required: false
+            default: ""
+            description: Raw YAML string for the outputs section of this pipeline.
+
+      fluentbit_custom_config:
+        type: str
+        required: false
+        default: ""
+        description: Raw YAML appended verbatim at the end of the generated config file.
+
+      fluentbit_win_firewall_rule_profiles:
+        type: str
+        required: false
+        default: "domain,private,public"
+        description: Comma-separated firewall profiles for the Windows firewall rule (Windows only).
+
+      fluentbit_win_firewall_rule_remoteip:
+        type: str
+        required: false
+        default: "any"
+        description: Remote IP filter for the Windows firewall rule (Windows only).
+
+      fluentbit_win_firewall_rule_state:
+        type: str
+        required: false
+        default: present
+        choices:
+          - present
+          - absent
+        description: State of the Windows firewall rule (Windows only).

@@ -1,0 +1,15 @@
+---
+# Basic test playbook for f9n.general.fluentbit.
+# Run from repo root:
+#   ansible-playbook -i tests/inventory tests/test_fluentbit.yml --syntax-check
+#   ansible-playbook -i tests/inventory tests/test_fluentbit.yml --check -l linux
+- name: Test Fluent Bit role
+  hosts: localhost
+  gather_facts: true
+  roles:
+    - role: f9n.general.fluentbit
+      vars:
+        fluentbit_pipelines:
+          - outputs: |
+              - name: stdout
+                match: "*"

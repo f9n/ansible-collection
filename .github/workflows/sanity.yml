@@ -1,0 +1,32 @@
+---
+# Run ansible-test sanity (code smell, docs, imports, etc.)
+name: Sanity
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ansible-core
+        run: pip install ansible-core
+
+      - name: Install collection dependencies
+        run: ansible-galaxy collection install -r requirements.yml
+
+      - name: Run sanity tests
+        run: ansible-test sanity --color
+        env:
+          ANSIBLE_FORCE_COLOR: true

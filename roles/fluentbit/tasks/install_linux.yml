@@ -1,0 +1,64 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Install repository prerequisites
+  ansible.builtin.apt:
+    name: "{{ fluentbit_prerequisites }}"
+    state: present
+  become: true
+
+- name: Ensure keyring directory exists
+  ansible.builtin.file:
+    path: "{{ fluentbit_apt_key_path | dirname }}"
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Download repository GPG key
+  ansible.builtin.get_url:
+    url: "{{ fluentbit_apt_key_url }}"
+    dest: "{{ fluentbit_apt_key_path }}"
+    mode: "0644"
+    force: false
+  become: true
+
+- name: Add Fluent Bit repository
+  ansible.builtin.apt_repository:
+    repo: |
+      deb [signed-by={{ fluentbit_apt_key_path }}] {{ fluentbit_apt_repos_url }}
+      {{ ansible_facts['distribution_release'] | lower }} {{ fluentbit_apt_repos_component }}
+    filename: fluentbit
+    state: present
+  become: true
+
+- name: Install Fluent Bit package
+  ansible.builtin.apt:
+    name: "{{ fluentbit_pkg_name }}{% if fluentbit_pkg_version is defined and fluentbit_pkg_version != '' %}={{ fluentbit_pkg_version }}{% endif %}"
+    update_cache: true
+    state: present
+  become: true
+
+- name: Ensure config directory exists
+  ansible.builtin.file:
+    path: "{{ fluentbit_conf_dir }}"
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Ensure storage directory exists
+  ansible.builtin.file:
+    path: "{{ fluentbit_storage_directory }}"
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Ensure database directory exists
+  ansible.builtin.file:
+    path: "{{ fluentbit_db_directory }}"
+    state: directory
+    mode: "0755"
+  become: true

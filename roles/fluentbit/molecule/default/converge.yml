@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+  roles:
+    - role: f9n.general.fluentbit
+      vars:
+        fluentbit_pipelines:
+          - outputs: |
+              - name: stdout
+                match: "*"

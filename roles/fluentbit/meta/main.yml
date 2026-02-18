@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  author: f9n
+  description: Install and configure Fluent Bit log processor and forwarder (Linux and Windows).
+  company: f9n
+  license: GPL-3.0-or-later
+  min_ansible_version: "2.20"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+    - name: Windows
+      versions:
+        - all
+  galaxy_tags:
+    - logging
+    - fluentbit
+    - observability
+    - windows
+    - linux
+
+dependencies: []

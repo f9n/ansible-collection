@@ -1,0 +1,21 @@
+---
+fluentbit_conf_dir: "/etc/fluent-bit"
+fluentbit_config_file: "/etc/fluent-bit/fluent-bit.yml"
+fluentbit_bin_dir: "/usr/bin"
+fluentbit_db_directory: "/var/lib/fluent-bit"
+fluentbit_storage_directory: "/var/lib/fluent-bit"
+fluentbit_parsers_path: "/etc/fluent-bit/parsers.yml"
+fluentbit_service_name: "fluent-bit"
+fluentbit_parsers_include: "parsers.yml"
+fluentbit_prerequisites:
+  - apt-transport-https
+  - gnupg
+  - python3
+  - python3-pip
+  - ca-certificates
+fluentbit_apt_key_url: "https://packages.fluentbit.io/fluentbit.key"
+fluentbit_apt_key_path: "/usr/share/keyrings/fluentbit-keyring.gpg"
+fluentbit_apt_repos_url: "https://packages.fluentbit.io/{{ ansible_facts['distribution'] | lower }}/{{ ansible_facts['distribution_release'] | lower }}"
+fluentbit_apt_repos_component: "main"
+fluentbit_pkg_name: "fluent-bit"
+fluentbit_pkg_version: "{{ fluentbit_version | default('') }}"

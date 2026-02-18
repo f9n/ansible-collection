@@ -1,0 +1,130 @@
+---
+- name: Check if Fluent Bit is already installed
+  ansible.windows.win_stat:
+    path: "{{ fluentbit_bin_dir }}\\fluent-bit.exe"
+  register: fluentbit_installed
+
+- name: Check the current Fluent Bit version
+  ansible.windows.win_command:
+    cmd: '"{{ fluentbit_bin_dir }}\\fluent-bit.exe" --version'
+  failed_when: false
+  changed_when: false
+  register: fluentbit_version_check
+  when: fluentbit_installed.stat.exists
+
+- name: Set fact for version check result
+  ansible.builtin.set_fact:
+    __fluentbit_needs_update: >-
+      {{
+        not fluentbit_installed.stat.exists or
+        (fluentbit_version_check is not defined) or
+        (fluentbit_version_check.rc != 0) or
+        (fluentbit_version_check.stdout_lines | default([]) | length > 0 and
+         fluentbit_version not in fluentbit_version_check.stdout_lines[0]) or
+        (fluentbit_version_check.stderr_lines | default([]) | length > 0 and
+         fluentbit_version not in fluentbit_version_check.stderr_lines[0])
+      }}
+
+- name: Create download directory
+  ansible.windows.win_file:
+    path: "{{ fluentbit_download_dir }}"
+    state: directory
+  when: __fluentbit_needs_update
+
+- name: Download Fluent Bit ZIP archive
+  ansible.windows.win_get_url:
+    url: "{{ fluentbit_download_url }}"
+    dest: "{{ fluentbit_download_dir }}\\fluent-bit-{{ fluentbit_version }}-{{ fluentbit_arch }}.zip"
+  when:
+    - __fluentbit_needs_update
+    - fluentbit_install_method == "zip"
+
+- name: Extract Fluent Bit ZIP archive to temp location
+  community.windows.win_unzip:
+    src: "{{ fluentbit_download_dir }}\\fluent-bit-{{ fluentbit_version }}-{{ fluentbit_arch }}.zip"
+    dest: "{{ fluentbit_download_dir }}\\fluent-bit-extract"
+  when:
+    - __fluentbit_needs_update
+    - fluentbit_install_method == "zip"
+  register: fluentbit_extracted
+
+- name: Check if binary exists in installation directory
+  ansible.windows.win_stat:
+    path: "{{ fluentbit_bin_dir }}\\fluent-bit.exe"
+  register: fluentbit_bin_exists
+  when:
+    - __fluentbit_needs_update
+    - fluentbit_install_method == "zip"
+    - fluentbit_extracted.changed | default(false)
+
+- name: Move extracted files to installation directory
+  ansible.windows.win_powershell:
+    script: |
+      $extractDir = "{{ fluentbit_download_dir }}\\fluent-bit-extract"
+      $targetPath = "{{ fluentbit_install_dir }}"
+      $subDirs = Get-ChildItem -Path $extractDir -Directory
+      if ($subDirs.Count -eq 1) {
+        $sourcePath = $subDirs[0].FullName
+      } else {
+        $sourcePath = $extractDir
+      }
+      $targetBin = Join-Path $targetPath "bin"
+      $targetConf = Join-Path $targetPath "conf"
+      $targetInclude = Join-Path $targetPath "include"
+      New-Item -ItemType Directory -Path $targetBin -Force | Out-Null
+      New-Item -ItemType Directory -Path $targetConf -Force | Out-Null
+      if (Test-Path (Join-Path $sourcePath "include")) {
+        New-Item -ItemType Directory -Path $targetInclude -Force | Out-Null
+      }
+      if (Test-Path (Join-Path $sourcePath "bin")) {
+        Copy-Item -Path "$sourcePath\bin\*" -Destination "$targetBin\" -Recurse -Force
+      }
+      if (Test-Path (Join-Path $sourcePath "conf")) {
+        Copy-Item -Path "$sourcePath\conf\*" -Destination "$targetConf\" -Recurse -Force
+      }
+      if (Test-Path (Join-Path $sourcePath "include")) {
+        Copy-Item -Path "$sourcePath\include\*" -Destination "$targetInclude\" -Recurse -Force
+      }
+      Remove-Item -Path $extractDir -Recurse -Force -ErrorAction SilentlyContinue
+  when:
+    - __fluentbit_needs_update
+    - fluentbit_install_method == "zip"
+    - fluentbit_extracted.changed | default(false)
+    - not (fluentbit_bin_exists.stat.exists | default(false))
+  notify: Restart Fluent Bit
+
+- name: Download Fluent Bit EXE installer
+  ansible.windows.win_get_url:
+    url: "{{ fluentbit_download_url | replace('.zip', '.exe') }}"
+    dest: "{{ fluentbit_download_dir }}\\fluent-bit-{{ fluentbit_version }}-{{ fluentbit_arch }}.exe"
+  when:
+    - __fluentbit_needs_update
+    - fluentbit_install_method == "exe"
+
+- name: Install Fluent Bit using EXE installer
+  ansible.windows.win_command:
+    cmd: "{{ fluentbit_download_dir }}\\fluent-bit-{{ fluentbit_version }}-{{ fluentbit_arch }}.exe /S /D={{ fluentbit_install_dir }}"
+  when:
+    - __fluentbit_needs_update
+    - fluentbit_install_method == "exe"
+  notify: Restart Fluent Bit
+
+- name: Ensure bin directory exists
+  ansible.windows.win_file:
+    path: "{{ fluentbit_bin_dir }}"
+    state: directory
+
+- name: Ensure configuration directory exists
+  ansible.windows.win_file:
+    path: "{{ fluentbit_conf_dir }}"
+    state: directory
+
+- name: Ensure database directory exists
+  ansible.windows.win_file:
+    path: "{{ fluentbit_db_directory }}"
+    state: directory
+
+- name: Ensure storage directory exists
+  ansible.windows.win_file:
+    path: "{{ fluentbit_storage_directory }}"
+    state: directory

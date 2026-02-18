@@ -1,0 +1,28 @@
+---
+fluentbit_version: "4.2.2"
+fluentbit_service_flush: 1
+fluentbit_service_daemon: false
+fluentbit_service_hot_reload: false
+fluentbit_service_loglevel: info
+fluentbit_service_http:
+  server: on
+  listen: "0.0.0.0"
+  port: 2020
+fluentbit_service_log_file: ""
+fluentbit_service_storage:
+  metrics: on
+  path: "{{ fluentbit_storage_directory }}"
+  sync: normal
+  backlog.mem_limit: 5M
+fluentbit_includes: []
+fluentbit_pipelines:
+  - inputs: ""
+    filters: ""
+    outputs: |
+      - name: stdout
+        match: "*"
+fluentbit_custom_config: ""
+
+fluentbit_systemd_limit_no_file: ""
+fluentbit_systemd_memory_max: "300M"
+fluentbit_systemd_io_weight: "1"

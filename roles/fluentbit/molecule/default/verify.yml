@@ -1,0 +1,23 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Check Fluent Bit service is running
+      ansible.builtin.service_facts:
+
+    - name: Assert fluent-bit service is active
+      ansible.builtin.assert:
+        that:
+          - "'fluent-bit.service' in ansible_facts.services"
+          - "ansible_facts.services['fluent-bit.service'].state == 'running'"
+
+    - name: Check config file exists
+      ansible.builtin.stat:
+        path: /etc/fluent-bit/fluent-bit.yml
+      register: _config_stat
+
+    - name: Assert config file is present
+      ansible.builtin.assert:
+        that:
+          - _config_stat.stat.exists

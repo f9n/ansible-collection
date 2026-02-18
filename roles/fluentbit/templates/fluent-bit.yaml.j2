@@ -1,0 +1,48 @@
+service:
+  flush: {{ fluentbit_service_flush }}
+  daemon: {{ fluentbit_service_daemon | bool | lower }}
+  hot_reload: {{ fluentbit_service_hot_reload | bool | lower }}
+  log_level: {{ fluentbit_service_loglevel }}
+{% if fluentbit_service_log_file %}
+  log_file: {{ fluentbit_service_log_file | quote }}
+{% endif %}
+{% if fluentbit_service_http is defined and fluentbit_service_http is mapping and fluentbit_service_http | length > 0 %}
+{% for key, value in fluentbit_service_http.items() %}
+  http_{{ key }}: {{ value | lower if value is boolean else (value | quote if value is string else value) }}
+{% endfor %}
+{% endif %}
+{% if fluentbit_service_storage is defined and fluentbit_service_storage is mapping and fluentbit_service_storage | length > 0 %}
+{% for key, value in fluentbit_service_storage.items() %}
+  storage.{{ key }}: {{ value | lower if value is boolean else (value | quote if value is string else value) }}
+{% endfor %}
+{% endif %}
+
+includes:
+  - {{ fluentbit_parsers_include | default('parsers.yml') }}
+{% if fluentbit_includes is defined and fluentbit_includes | length > 0 %}
+{% for include in fluentbit_includes %}
+  - {{ include }}
+{% endfor %}
+{% endif %}
+
+{% if fluentbit_pipelines is defined and fluentbit_pipelines | length > 0 %}
+{% for pipeline in fluentbit_pipelines %}
+pipeline:
+{% if pipeline.inputs is defined and pipeline.inputs %}
+  inputs:
+{{ pipeline.inputs | indent(4, first=True) }}
+{% endif %}
+{% if pipeline.filters is defined and pipeline.filters %}
+  filters:
+{{ pipeline.filters | indent(4, first=True) }}
+{% endif %}
+{% if pipeline.outputs is defined and pipeline.outputs %}
+  outputs:
+{{ pipeline.outputs | indent(4, first=True) }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if fluentbit_custom_config is defined and fluentbit_custom_config %}
+{{ fluentbit_custom_config }}
+{% endif %}

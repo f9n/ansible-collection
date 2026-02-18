@@ -1,0 +1,16 @@
+{{ ansible_managed | comment }}
+[Service]
+ExecStart=
+ExecStart={{ fluentbit_bin_dir }}/fluent-bit -c {{ fluentbit_config_file }}
+ExecReload=/bin/kill -HUP $MAINPID
+{% if fluentbit_systemd_limit_no_file %}
+LimitNOFILE={{ fluentbit_systemd_limit_no_file }}
+{% endif %}
+{% if fluentbit_systemd_memory_max %}
+MemoryAccounting=true
+MemoryMax={{ fluentbit_systemd_memory_max }}
+{% endif %}
+{% if fluentbit_systemd_io_weight %}
+IOAccounting=true
+IOWeight={{ fluentbit_systemd_io_weight }}
+{% endif %}

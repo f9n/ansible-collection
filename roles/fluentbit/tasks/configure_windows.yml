@@ -1,0 +1,12 @@
+---
+- name: Deploy main configuration
+  ansible.windows.win_template:
+    src: fluent-bit.yaml.j2
+    dest: "{{ fluentbit_config_file }}"
+  notify: Restart Fluent Bit
+
+- name: Deploy parsers file
+  ansible.windows.win_copy:
+    src: parsers.yml
+    dest: "{{ fluentbit_parsers_path }}"
+  notify: Restart Fluent Bit

@@ -1,0 +1,14 @@
+---
+- name: Start and enable Fluent Bit service
+  ansible.builtin.service:
+    name: "{{ fluentbit_service_name }}"
+    state: started
+    enabled: true
+  become: true
+
+- name: Wait for HTTP metrics endpoint
+  ansible.builtin.wait_for:
+    port: "{{ fluentbit_service_http.port | default(2020) }}"
+    delay: 5
+    timeout: 30
+  when: fluentbit_service_http.server | default('') | string | lower == 'on'

@@ -1,0 +1,91 @@
+---
+# Build collection reference docs with antsibull-docs and deploy to GitHub Pages.
+#
+# Enable GitHub Pages first:
+#   Repository Settings → Pages → Source: "GitHub Actions"
+name: Docs
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # antsibull-docs expects the collection at ansible_collections/<ns>/<name>/
+      - name: Checkout into collection path
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/f9n/general
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install "3.12"
+
+      - name: Install dependencies
+        run: uv sync
+        working-directory: ansible_collections/f9n/general
+
+      - name: Install collection dependencies
+        run: |
+          uv run ansible-galaxy collection install \
+            -r ansible_collections/f9n/general/requirements.yml \
+            -p .
+        working-directory: ansible_collections/f9n/general
+
+      - name: Install antsibull-docs
+        run: uv run pip install antsibull-docs
+        working-directory: ansible_collections/f9n/general
+
+      - name: Initialize Sphinx project
+        run: |
+          uv run antsibull-docs sphinx-init \
+            --use-current-collection-path \
+            --squash-hierarchy \
+            --dest docs/sphinx \
+            f9n.general
+        working-directory: ansible_collections/f9n/general
+
+      - name: Install Sphinx dependencies
+        run: |
+          uv run pip install -r ansible_collections/f9n/general/docs/sphinx/requirements.txt
+
+      - name: Build HTML documentation
+        run: |
+          uv run sphinx-build \
+            ansible_collections/f9n/general/docs/sphinx/ \
+            _site/
+        working-directory: ansible_collections/f9n/general
+        env:
+          ANSIBLE_COLLECTIONS_PATHS: ${{ github.workspace }}
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ansible_collections/f9n/general/_site/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

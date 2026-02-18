@@ -1,0 +1,29 @@
+---
+- name: Deploy main configuration
+  ansible.builtin.template:
+    src: fluent-bit.yaml.j2
+    dest: "{{ fluentbit_config_file }}"
+    mode: "0644"
+  notify: Restart Fluent Bit
+
+- name: Deploy parsers file
+  ansible.builtin.copy:
+    src: parsers.yml
+    dest: "{{ fluentbit_parsers_path }}"
+    mode: "0644"
+  notify: Restart Fluent Bit
+
+- name: Ensure systemd override directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/fluent-bit.service.d
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Deploy systemd override for YAML config
+  ansible.builtin.template:
+    src: fluent-bit.service.d-override.conf.j2
+    dest: /etc/systemd/system/fluent-bit.service.d/override.conf
+    mode: "0644"
+  become: true
+  notify: Restart Fluent Bit

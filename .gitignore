@@ -1,0 +1,15 @@
+# Virtual environment (uv / venv)
+.venv/
+venv/
+env/
+
+# Collection build
+*.tar.gz
+
+# Ansible
+*.retry
+.ansible/
+
+# Editor / OS
+*.swp
+.DS_Store

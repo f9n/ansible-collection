@@ -1,0 +1,83 @@
+---
+# Bump version, generate changelog, create tag → triggers publish.yml automatically.
+#
+# Usage: Actions → Release → Run workflow → choose bump type
+#
+# Prerequisites:
+#   - Changelog fragments must exist under changelogs/fragments/ for the release to have content.
+#   - The GITHUB_TOKEN must have "Contents: write" permission (default for org/personal repos).
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install "3.12"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Calculate new version
+        id: version
+        run: |
+          CURRENT=$(grep '^version:' galaxy.yml | awk '{print $2}')
+          echo "Current version: $CURRENT"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          case "${{ inputs.bump }}" in
+            major) MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR+1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH+1)) ;;
+          esac
+          NEW="$MAJOR.$MINOR.$PATCH"
+          echo "New version: $NEW"
+          echo "version=$NEW" >> "$GITHUB_OUTPUT"
+
+      - name: Update galaxy.yml version
+        run: |
+          sed -i "s/^version:.*/version: ${{ steps.version.outputs.version }}/" galaxy.yml
+
+      - name: Generate changelog
+        run: |
+          uv run antsibull-changelog release --version ${{ steps.version.outputs.version }}
+
+      - name: Commit release
+        run: |
+          git add galaxy.yml CHANGELOG.rst changelogs/
+          git commit -m "chore: release v${{ steps.version.outputs.version }}"
+
+      - name: Create and push tag
+        run: |
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin main --tags

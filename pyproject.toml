@@ -1,0 +1,25 @@
+[project]
+name = "f9n-general"
+version = "1.0.0"
+description = "General-purpose Ansible Collection (logging, agents, and more). Linux & Windows."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "GPL-3.0-or-later" }
+
+[dependency-groups]
+dev = [
+  "ansible-core>=2.20",
+  "ansible-lint>=26.0",
+  "antsibull-changelog>=0.35.0",
+  "antsibull-docs>=2.24",
+  "molecule>=25.0",
+  "molecule-plugins[docker]>=25.0",
+  "taskipy>=1.14",
+  "yamllint>=1.38",
+]
+
+[tool.taskipy.tasks]
+lint = "ansible-lint"
+yamllint = "yamllint ."
+test = "bash -c 'for role in roles/*/; do echo \"==> Testing $role\"; (cd \"$role\" && molecule test); done'"
+changelog = "antsibull-changelog lint && antsibull-changelog generate"

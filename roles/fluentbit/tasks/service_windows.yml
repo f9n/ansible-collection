@@ -1,0 +1,38 @@
+---
+- name: Validate configuration with dry run
+  ansible.windows.win_command:
+    cmd: "\"{{ fluentbit_bin_dir }}\\fluent-bit.exe\" -c \"{{ fluentbit_config_file }}\" --dry-run"
+  register: fluentbit_config_test
+  failed_when: false
+  changed_when: false
+
+- name: Ensure Windows service exists and is configured
+  ansible.windows.win_service:
+    name: "{{ fluentbit_service_name }}"
+    path: "\"{{ fluentbit_bin_dir }}\\fluent-bit.exe\" -c \"{{ fluentbit_config_file }}\""
+    display_name: "{{ fluentbit_service_display_name }}"
+    description: "{{ fluentbit_service_description }}"
+    start_mode: "{{ fluentbit_service_startup_type }}"
+    state: stopped
+  register: fluentbit_service_result
+
+- name: Allow HTTP port in Windows Firewall
+  community.windows.win_firewall_rule:
+    name: "fluent-bit (HTTP)"
+    description: "Inbound rule for Fluent Bit HTTP server"
+    program: "{{ fluentbit_bin_dir }}\\fluent-bit.exe"
+    localport: "{{ fluentbit_service_http.port | default(2020) }}"
+    remoteip: "{{ fluentbit_win_firewall_rule_remoteip }}"
+    action: "allow"
+    direction: "in"
+    protocol: "tcp"
+    profiles: "{{ fluentbit_win_firewall_rule_profiles }}"
+    enabled: true
+    state: "{{ fluentbit_win_firewall_rule_state }}"
+  when: fluentbit_service_http.server | default('') | string | lower == 'on'
+
+- name: Start Fluent Bit service
+  ansible.windows.win_service:
+    name: "{{ fluentbit_service_name }}"
+    state: "{{ fluentbit_service_state }}"
+  when: fluentbit_service_state == "started"

@@ -1,0 +1,36 @@
+---
+namespace: f9n
+name: general
+version: 1.0.0
+readme: README.md
+authors:
+  - f9n (https://github.com/f9n)
+description: General-purpose Ansible Collection (logging, agents, and more). Linux & Windows.
+license:
+  - GPL-3.0-or-later
+tags:
+  - general
+  - logging
+  - fluentbit
+  - observability
+  - windows
+  - linux
+dependencies:
+  ansible.windows: ">=3.0.0"
+  community.windows: ">=3.0.0"
+repository: https://github.com/f9n/ansible-collection
+documentation: https://f9n.github.io/ansible-collection/
+homepage: https://github.com/f9n/ansible-collection
+issues: https://github.com/f9n/ansible-collection/issues
+build_ignore:
+  - .config
+  - .github
+  - .gitignore
+  - .yamllint.yml
+  - changelogs
+  - docs
+  - tests
+  - roles/*/molecule
+  - "*.tar.gz"
+  - uv.lock
+  - pyproject.toml
