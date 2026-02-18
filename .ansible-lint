@@ -6,3 +6,5 @@ exclude_paths:
   - roles/*/molecule/
 mock_roles:
   - community.windows
+skip_list:
+  - galaxy[no-changelog]
