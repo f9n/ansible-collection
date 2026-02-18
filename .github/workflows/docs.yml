@@ -55,7 +55,7 @@ jobs:
       - name: Initialize Sphinx project
         run: |
           uv run antsibull-docs sphinx-init \
-            --collection-root-path ../../../ \
+            --collections-path ../../../ \
             --squash-hierarchy \
             --dest docs/sphinx \
             f9n.general
