@@ -44,8 +44,8 @@ jobs:
       - name: Install collection dependencies
         run: |
           uv run ansible-galaxy collection install \
-            -r ansible_collections/f9n/general/requirements.yml \
-            -p .
+            -r requirements.yml \
+            -p ../../../
         working-directory: ansible_collections/f9n/general
 
       - name: Install antsibull-docs
@@ -63,12 +63,13 @@ jobs:
 
       - name: Install Sphinx dependencies
         run: |
-          uv run pip install -r ansible_collections/f9n/general/docs/sphinx/requirements.txt
+          uv run pip install -r docs/sphinx/requirements.txt
+        working-directory: ansible_collections/f9n/general
 
       - name: Build HTML documentation
         run: |
           uv run sphinx-build \
-            ansible_collections/f9n/general/docs/sphinx/ \
+            docs/sphinx/ \
             _site/
         working-directory: ansible_collections/f9n/general
         env:
