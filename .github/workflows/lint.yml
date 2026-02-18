@@ -34,5 +34,3 @@ jobs:
       - name: Run ansible-lint
         run: uv run ansible-lint
 
-      - name: Lint changelog fragments
-        run: uv run antsibull-changelog lint

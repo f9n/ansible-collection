@@ -35,20 +35,6 @@ uv run task yamllint
 uv run task linkt
 ```
 
-## Changelog
-
-Every user-facing change must include a changelog fragment under `changelogs/fragments/`.
-Use the `antsibull-changelog` format:
-
-```yaml
-# changelogs/fragments/my-change.yml
-minor_changes:
-  - fluentbit - added support for X (https://github.com/f9n/ansible-collection/pull/NNN).
-```
-
-Fragment types: `release_summary`, `major_changes`, `minor_changes`, `breaking_changes`,
-`deprecated_features`, `removed_features`, `security_fixes`, `bugfixes`, `known_issues`.
-
 ## Commit messages
 
 Use [Conventional Commits](https://www.conventionalcommits.org/) format:

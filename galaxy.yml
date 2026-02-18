@@ -27,7 +27,6 @@ build_ignore:
   - .github
   - .gitignore
   - .yamllint.yml
-  - changelogs
   - docs
   - tests
   - roles/*/molecule

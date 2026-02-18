@@ -36,5 +36,4 @@ rules:
 ignore: |
   .venv/
   .ansible/
-  changelogs/.plugin-cache.yaml
   roles/fluentbit/files/parsers.yml

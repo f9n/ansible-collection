@@ -27,6 +27,4 @@ uv run task test
 
 Commit `uv.lock` for reproducible installs. To refresh the lockfile: `uv lock`.
 
-Changelog is generated with [antsibull-changelog](https://docs.ansible.com/projects/antsibull-changelog/) from YAML fragments in `changelogs/fragments/`.
-
 See [tests/README.md](tests/README.md) for playbook syntax check, check mode, and full run.

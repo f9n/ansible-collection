@@ -1,10 +1,9 @@
 ---
-# Bump version, generate changelog, create tag → triggers publish.yml automatically.
+# Bump version, create tag → triggers publish.yml automatically.
 #
 # Usage: Actions → Release → Run workflow → choose bump type
 #
 # Prerequisites:
-#   - Changelog fragments must exist under changelogs/fragments/ for the release to have content.
 #   - The GITHUB_TOKEN must have "Contents: write" permission (default for org/personal repos).
 name: Release
 
@@ -68,13 +67,9 @@ jobs:
         run: |
           sed -i "s/^version:.*/version: ${{ steps.version.outputs.version }}/" galaxy.yml
 
-      - name: Generate changelog
-        run: |
-          uv run antsibull-changelog release --version ${{ steps.version.outputs.version }}
-
       - name: Commit release
         run: |
-          git add galaxy.yml CHANGELOG.rst changelogs/
+          git add galaxy.yml
           git commit -m "chore: release v${{ steps.version.outputs.version }}"
 
       - name: Create and push tag
