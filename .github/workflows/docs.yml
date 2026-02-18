@@ -54,6 +54,7 @@ jobs:
 
       - name: Initialize Sphinx project
         run: |
+          mkdir -p docs/sphinx
           uv run antsibull-docs sphinx-init \
             --squash-hierarchy \
             --dest docs/sphinx \
