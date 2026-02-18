@@ -48,10 +48,6 @@ jobs:
             -p ../../../
         working-directory: ansible_collections/f9n/general
 
-      - name: Install antsibull-docs
-        run: uv run pip install antsibull-docs
-        working-directory: ansible_collections/f9n/general
-
       - name: Initialize Sphinx project
         run: |
           mkdir -p docs/sphinx
@@ -63,7 +59,7 @@ jobs:
 
       - name: Install Sphinx dependencies
         run: |
-          uv run pip install -r docs/sphinx/requirements.txt
+          uv pip install -r docs/sphinx/requirements.txt
         working-directory: ansible_collections/f9n/general
 
       - name: Build HTML documentation
