@@ -1,7 +1,7 @@
 ---
 namespace: f9n
 name: general
-version: 2.1.0
+version: 2.2.0
 readme: README.md
 authors:
   - f9n (https://github.com/f9n)
