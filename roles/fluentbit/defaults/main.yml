@@ -9,7 +9,6 @@ fluentbit_service_http:
   listen: "0.0.0.0"
   port: 2020
 fluentbit_service_log_file: ""
-fluentbit_storage_directory: "/var/lib/fluent-bit/"
 fluentbit_service_storage:
   metrics: on
   path: "{{ fluentbit_storage_directory }}"
