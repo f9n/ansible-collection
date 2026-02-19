@@ -31,5 +31,6 @@ build_ignore:
   - tests
   - roles/*/molecule
   - "*.tar.gz"
+  - .venv
   - uv.lock
   - pyproject.toml
