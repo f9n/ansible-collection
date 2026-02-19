@@ -1,10 +1,4 @@
 ---
-# Bump version, create tag → triggers publish.yml automatically.
-#
-# Usage: Actions → Release → Run workflow → choose bump type
-#
-# Prerequisites:
-#   - The GITHUB_TOKEN must have "Contents: write" permission (default for org/personal repos).
 name: Release
 
 on:
@@ -76,3 +70,22 @@ jobs:
         run: |
           git tag "v${{ steps.version.outputs.version }}"
           git push origin main --tags
+
+      - name: Build collection
+        id: build
+        uses: ansible-community/github-action-build-collection@main
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ steps.version.outputs.version }}"
+          files: ${{ steps.build.outputs.artifact-path }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Ansible Galaxy
+        uses: ansible/ansible-publish-action@v1.0.0
+        with:
+          api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
+          src_path: ${{ github.workspace }}
