@@ -1,5 +1,5 @@
 ---
-fluentbit_version: "4.2.2"
+fluentbit_version: "5.0.2"
 fluentbit_service_flush: 1
 fluentbit_service_daemon: false
 fluentbit_service_hot_reload: false

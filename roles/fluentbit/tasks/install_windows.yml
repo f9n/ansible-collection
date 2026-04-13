@@ -48,15 +48,6 @@
     - fluentbit_install_method == "zip"
   register: fluentbit_extracted
 
-- name: Check if binary exists in installation directory
-  ansible.windows.win_stat:
-    path: "{{ fluentbit_bin_dir }}\\fluent-bit.exe"
-  register: fluentbit_bin_exists
-  when:
-    - __fluentbit_needs_update
-    - fluentbit_install_method == "zip"
-    - fluentbit_extracted.changed | default(false)
-
 - name: Move extracted files to installation directory
   ansible.windows.win_powershell:
     script: |
@@ -90,7 +81,6 @@
     - __fluentbit_needs_update
     - fluentbit_install_method == "zip"
     - fluentbit_extracted.changed | default(false)
-    - not (fluentbit_bin_exists.stat.exists | default(false))
   notify: Restart Fluent Bit
 
 - name: Download Fluent Bit EXE installer
