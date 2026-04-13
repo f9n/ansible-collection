@@ -11,6 +11,7 @@
 - name: Restart Fluent Bit (Windows)
   ansible.windows.win_service:
     name: "{{ fluentbit_service_name }}"
+    path: '"{{ fluentbit_bin_dir }}\fluent-bit.exe" -c "{{ fluentbit_config_file }}"'
     state: restarted
   when: ansible_facts['os_family'] == 'Windows'
   listen: Restart Fluent Bit
