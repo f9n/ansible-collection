@@ -1,14 +1,16 @@
 ---
-- name: Restart Fluent Bit
+- name: Restart Fluent Bit (Linux)
   ansible.builtin.systemd:
     name: "{{ fluentbit_service_name }}"
     state: restarted
     daemon_reload: true
   when: ansible_facts['os_family'] != 'Windows'
   become: true
+  listen: Restart Fluent Bit
 
-- name: Restart Fluent Bit
+- name: Restart Fluent Bit (Windows)
   ansible.windows.win_service:
     name: "{{ fluentbit_service_name }}"
     state: restarted
   when: ansible_facts['os_family'] == 'Windows'
+  listen: Restart Fluent Bit

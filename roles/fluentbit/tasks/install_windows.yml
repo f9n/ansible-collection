@@ -19,11 +19,18 @@
         not fluentbit_installed.stat.exists or
         (fluentbit_version_check is not defined) or
         (fluentbit_version_check.rc != 0) or
-        (fluentbit_version_check.stdout_lines | default([]) | length > 0 and
-         fluentbit_version not in fluentbit_version_check.stdout_lines[0]) or
-        (fluentbit_version_check.stderr_lines | default([]) | length > 0 and
-         fluentbit_version not in fluentbit_version_check.stderr_lines[0])
+        (fluentbit_version not in (fluentbit_version_check.stdout | default('')) and
+         fluentbit_version not in (fluentbit_version_check.stderr | default('')))
       }}
+
+- name: Stop Fluent Bit service before upgrade
+  ansible.windows.win_service:
+    name: "{{ fluentbit_service_name }}"
+    state: stopped
+  when:
+    - __fluentbit_needs_update
+    - fluentbit_installed.stat.exists
+  failed_when: false
 
 - name: Create download directory
   ansible.windows.win_file:
