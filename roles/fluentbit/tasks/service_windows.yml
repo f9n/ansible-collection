@@ -9,11 +9,9 @@
 - name: Ensure Windows service exists and is configured
   ansible.windows.win_service:
     name: "{{ fluentbit_service_name }}"
-    path: "\"{{ fluentbit_bin_dir }}\\fluent-bit.exe\" -c \"{{ fluentbit_config_file }}\""
     display_name: "{{ fluentbit_service_display_name }}"
     description: "{{ fluentbit_service_description }}"
     start_mode: "{{ fluentbit_service_startup_type }}"
-    state: stopped
   register: fluentbit_service_result
 
 - name: Allow HTTP port in Windows Firewall
